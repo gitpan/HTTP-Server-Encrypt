@@ -1,0 +1,27 @@
+HTTP-Server-Encrypt version 0.01
+================================
+
+A pure Perl WebServer with additional features below.
+
+1.Counld encrypt response BODY section or decrypt resquest BODY section with BlowFish CBC.
+2.Support HTTP Basic Authentication.
+3.Perfork proccess number can be controlled.
+4.Cache static request`s response in memory. 
+5.Route dynamic requests to file.
+6.Built-in IP filter.
+7.Support protocol PON (Perl Object Notation).
+
+INSTALLATION
+
+To install this module type the following:
+
+   perl Makefile.PL
+   make
+   make test
+   make install
+
+COPYRIGHT AND LICENCE
+
+Copyright (c) 2011 ChenGang.
+This library is free software; you can redistribute it and/or 
+modify it under the same terms as Perl itself.

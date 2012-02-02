@@ -1,0 +1,6 @@
+Revision history for Perl extension HTTP::Server::Encrypt.
+
+0.01  Wed Jan 18 16:31:16 2012
+	- original version; created by h2xs 1.23 with options
+		-XA -n HTTP::Server::Encrypt
+
