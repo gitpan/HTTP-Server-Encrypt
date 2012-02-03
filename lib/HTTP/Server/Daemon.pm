@@ -14,6 +14,8 @@ require Exporter;
 @ISA = qw(Exporter);
 @EXPORT_OK = qw(server_perfork_dynamic check_pid become_daemon become_netserver get_msg send_msg peer_info net_filter);
 
+our $VERSION = '0.01';
+
 =head1 NAME
 
 Daemon - Start an Application as a Daemon 
@@ -334,3 +336,24 @@ sub become_daemon
 }
 
 1;
+
+=head1 AUTHOR
+
+Written by ChenGang, yikuyiku.com@gmail.com
+
+L<http://blog.yikuyiku.com/>
+
+
+=head1 COPYRIGHT
+
+Copyright (c) 2011 ChenGang.
+This library is free software; you can redistribute it and/or 
+modify it under the same terms as Perl itself.
+
+
+=head1 SEE ALSO
+
+L<Parallel::Prefork>, L<Daemon::Generic>
+
+=cut
+

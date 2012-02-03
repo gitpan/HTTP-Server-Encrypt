@@ -1,11 +1,11 @@
-HTTP-Server-Encrypt version 0.01
+HTTP-Server-Encrypt version 0.02
 ================================
 
 A pure Perl WebServer with additional features below.
 
 1.Counld encrypt response BODY section or decrypt resquest BODY section with BlowFish CBC.
 2.Support HTTP Basic Authentication.
-3.Perfork proccess number can be controlled.
+3.Minimum and maximum number of prefork processes is configurable.
 4.Cache static request`s response in memory. 
 5.Route dynamic requests to file.
 6.Built-in IP filter.

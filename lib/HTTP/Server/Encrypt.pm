@@ -9,7 +9,7 @@ use HTTP::Date qw(time2str);
 use MIME::Base64 qw(encode_base64);
 use File::Basename qw(dirname basename);
 use Sys::Sendfile qw(sendfile);
-use Log::Lite qw(log);
+use Log::Lite qw(log logpath);
 use Crypt::CBC;
 use Digest::MD5 qw(md5_hex);
 use Data::Dump qw(ddx);
@@ -19,7 +19,7 @@ require Exporter;
 @ISA = qw(Exporter);
 @EXPORT_OK = qw(http_server_start);
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 sub http_server_start
 {
@@ -40,6 +40,7 @@ sub http_server_start
     our %ip_deny = %{$http_conf{'ip_deny'}} if $http_conf{'ip_deny'};
     our $log_dir = $http_conf{'log_dir'} if $http_conf{'log_dir'};
     $log_dir = '' if $log_dir eq 'no';
+    logpath($log_dir) if $log_dir;
 
     if ($blowfish_key)
     {
@@ -330,6 +331,7 @@ HTTP::Server::Encrypt - HTTP server with encrypt BODY section
 	$http_conf{'blowfish_decrypt'} = 'yes';
 	$http_conf{'ip_allow'} = \%ip_allow;
 	$http_conf{'ip_deny'} = \%ip_deny;
+    $http_conf{'log_dir'} = '/var/log/httpd_encrype/';
 
 	http_server_start(\%http_conf);
 
@@ -350,7 +352,7 @@ Support HTTP Basic Authentication.
 
 =item *
 
-Perfork proccess number can be controlled.
+Minimum and maximum number of prefork processes is configurable.
 
 =item *
 
@@ -380,6 +382,24 @@ Usage of I<HTTP::Server::Encrypt> is very simple.
 To set up a new HTTP Server, call the I<http_server_start> method.
 You Get All Done. It will run as a daemon.
 
+If your want do things after I<http_server_start> method, you may use this:
+
+    my $parent = fork();
+    unless($parent)
+    {
+        http_server_start(\%http_conf);
+        exit 1;
+    }
+
+    my $pidfile = __FILE__ . ".pid";
+    for(1..9)
+    {
+        last if -s $pidfile;
+        sleep 1;
+    }
+
+    ... #server already up. do your things ...
+
 I<http_server_start> accepts the following named parameters in I<%params>:
 
 =over 4
@@ -391,8 +411,8 @@ Defaults to 80.
 
 =item * protocol
 
-I<http> for protocol HTTP.
-I<pon> for protocol PON.
+Value I<http> for protocol HTTP.
+Value I<pon> for protocol PON.
 
 =item * min_spare
 
@@ -405,10 +425,12 @@ Maximum number of processes can be forked.
 =item * docroot
 
 This directive sets the directory from which the server will serve files.
+Request I<GET /script.pl> will be responsed by 
+I</var/www/html/script.pl> if you this set to I</var/www/html/>.
 
 =item * cache_expires_secs
 
-Set the HTTP "Cache-Control: max-age" value.
+Set the HTTP "Cache-Control: max-age" value for static content.
 
 =item * username
 
@@ -447,8 +469,18 @@ Set log directory. Disable log if value eq I<no>.
 
 =head1 PERFORMANCE
 
-The Module has about more the half of request/sec performance compared to apache 2.2.
-Your can trade off between req/sec and sec/req using config I<min_spare> and I<max_spare>. 
+The Module has about more the half of request/sec performance compared 
+to apache 2.2.I got 3000 req/sec on Xeon 5520/8G which httpd got 6000. 
+Your can trade off between req/sec and sec/req yourself using the 
+config I<min_spare> and I<max_spare>. 
+
+
+=head1 ABOUT PON
+
+That is a very simple and friendly Network Protocol for PERL. I use it 
+on my distributed system communication.Because it works just like JSON, 
+I called it "PON".
+
 
 =head1 AUTHOR
 
