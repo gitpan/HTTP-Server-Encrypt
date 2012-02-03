@@ -19,7 +19,7 @@ require Exporter;
 @ISA = qw(Exporter);
 @EXPORT_OK = qw(http_server_start);
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 sub http_server_start
 {
@@ -473,6 +473,11 @@ The Module has about more the half of request/sec performance compared
 to apache 2.2.I got 3000 req/sec on Xeon 5520/8G which httpd got 6000. 
 Your can trade off between req/sec and sec/req yourself using the 
 config I<min_spare> and I<max_spare>. 
+
+
+=head1 MSWin32 Support
+
+This module have no plan to support MSWin32.
 
 
 =head1 ABOUT PON

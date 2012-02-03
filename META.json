@@ -37,13 +37,13 @@
             "Digest::MD5" : 0,
             "HTTP::Date" : 0,
             "HTTP::Status" : 0,
+            "LWP::UserAgent" : 0,
             "Log::Lite" : "0.03",
             "MIME::Base64" : 0,
-            "Sys::Sendfile" : 0,
-            "Test::HTTP::Response" : 0
+            "Sys::Sendfile" : 0
          }
       }
    },
    "release_status" : "stable",
-   "version" : "0.02"
+   "version" : "0.03"
 }

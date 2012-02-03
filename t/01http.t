@@ -1,6 +1,5 @@
 use LWP::UserAgent;
 use Test::More;
-use Test::HTTP::Response;
 use HTTP::Server::Encrypt qw(http_server_start);
 plan tests => 3;
 
@@ -43,15 +42,15 @@ my $response;
 
 $url = "http://127.0.0.1:1024/index.html";
 $response = $ua->get($url);
-status_matches($response, 401, 'Response has HTTP Base Authorization (401) status');
+is($response->code, 401, "Response has HTTP Base Authorization (401) status");
 
 $ua->credentials( "127.0.0.1:1024", "Colonel Authentication System", "username", "passwd" );
 $response = $ua->get($url);
-status_ok($response);
+is($response->code, 200, "Response has HTTP OK (2xx) status");
 
 $url = "http://127.0.0.1:1024/page_no_found";
 $response = $ua->get($url);
-status_not_found($response);
+is($response->code, 404, "Response has HTTP Not Found (404) status");
 
 kill TERM => $pid;
 1;

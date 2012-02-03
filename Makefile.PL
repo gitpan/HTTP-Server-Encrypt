@@ -13,7 +13,7 @@ WriteMakefile(
                             'Crypt::CBC' => 0,
                             'Digest::MD5' => 0,
                             'MIME::Base64' => 0,
-                            'Test::HTTP::Response' => 0,
+                            'LWP::UserAgent' => 0,
                         }, 
     ($] >= 5.005 ?     
       (ABSTRACT_FROM  => 'lib/HTTP/Server/Encrypt.pm', 
