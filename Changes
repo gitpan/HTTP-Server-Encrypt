@@ -8,3 +8,5 @@ Revision history for Perl extension HTTP::Server::Encrypt.
     - Add log path configurable
 0.03  Fri Feb  3 15:23:12 2012
     - Remove the dependence of the 'Test::HTTP::Response' module
+0.04  Wed Feb 16 12:39:54 2012
+    - BUG fix

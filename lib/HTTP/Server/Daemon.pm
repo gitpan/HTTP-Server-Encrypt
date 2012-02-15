@@ -8,13 +8,13 @@ use Carp;
 use IO::Select;
 use File::Basename qw(dirname basename);
 use Data::Dump qw(dump);
-use vars qw(@ISA @EXPORT_OK $pipe_write $pipe_write $pipe_write $max_colonels $pipe_status $pipe_read @idle_children %children $min_children $max_children $port $pidfile $quit $caller_package $caller_filename $caller_line $str $str $str @allow_ips @allow_ips);
+use vars qw(@ISA @EXPORT_OK $pipe_write $pipe_write $pipe_write $pipe_status $pipe_read @idle_children %children $min_children $max_children $port $pidfile $quit $caller_package $caller_filename $caller_line $str $str $str @allow_ips @allow_ips);
 
 require Exporter;
 @ISA = qw(Exporter);
 @EXPORT_OK = qw(server_perfork_dynamic check_pid become_daemon become_netserver get_msg send_msg peer_info net_filter);
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 =head1 NAME
 
@@ -101,7 +101,7 @@ sub server_perfork_dynamic
         }
         elsif(@idle_children > $max_children)
         {
-            my @kill_pids = @idle_children[0..@idle_children - $max_colonels - 1];
+            my @kill_pids = @idle_children[0..@idle_children - $max_children - 1];
             my $kill_pid = kill HUP => @kill_pids;
         }
     }

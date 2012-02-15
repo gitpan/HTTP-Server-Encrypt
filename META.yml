@@ -1,30 +1,30 @@
----
-abstract: 'HTTP server with encrypt BODY section'
+--- #YAML:1.0
+name:               HTTP-Server-Encrypt
+version:            0.04
+abstract:           HTTP server with encrypt BODY section
 author:
-  - 'ChenGang <yikuyiku.com@gmail.com>'
-build_requires:
-  ExtUtils::MakeMaker: 0
+    - ChenGang <yikuyiku.com@gmail.com>
+license:            unknown
+distribution_type:  module
 configure_requires:
-  ExtUtils::MakeMaker: 0
-dynamic_config: 1
-generated_by: 'ExtUtils::MakeMaker version 6.59, CPAN::Meta::Converter version 2.112621'
-license: unknown
-meta-spec:
-  url: http://module-build.sourceforge.net/META-spec-v1.4.html
-  version: 1.4
-name: HTTP-Server-Encrypt
-no_index:
-  directory:
-    - t
-    - inc
+    ExtUtils::MakeMaker:  0
+build_requires:
+    ExtUtils::MakeMaker:  0
 requires:
-  Crypt::CBC: 0
-  Data::Dump: 0
-  Digest::MD5: 0
-  HTTP::Date: 0
-  HTTP::Status: 0
-  LWP::UserAgent: 0
-  Log::Lite: 0.03
-  MIME::Base64: 0
-  Sys::Sendfile: 0
-version: 0.03
+    Crypt::CBC:      0
+    Data::Dump:      0
+    Digest::MD5:     0
+    HTTP::Date:      0
+    HTTP::Status:    0
+    Log::Lite:       0.03
+    LWP::UserAgent:  0
+    MIME::Base64:    0
+    Sys::Sendfile:   0
+no_index:
+    directory:
+        - t
+        - inc
+generated_by:       ExtUtils::MakeMaker version 6.56
+meta-spec:
+    url:      http://module-build.sourceforge.net/META-spec-v1.4.html
+    version:  1.4

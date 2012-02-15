@@ -19,7 +19,7 @@ require Exporter;
 @ISA = qw(Exporter);
 @EXPORT_OK = qw(http_server_start);
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
 sub http_server_start
 {
@@ -39,8 +39,8 @@ sub http_server_start
     our %ip_allow = %{$http_conf{'ip_allow'}} if $http_conf{'ip_allow'};
     our %ip_deny = %{$http_conf{'ip_deny'}} if $http_conf{'ip_deny'};
     our $log_dir = $http_conf{'log_dir'} if $http_conf{'log_dir'};
-    $log_dir = '' if $log_dir eq 'no';
-    logpath($log_dir) if $log_dir;
+    $log_dir = '' if defined $log_dir and $log_dir eq 'no';
+    logpath($log_dir) if defined $log_dir and $log_dir;
 
     if ($blowfish_key)
     {
@@ -316,24 +316,24 @@ HTTP::Server::Encrypt - HTTP server with encrypt BODY section
 
 =head1 SYNOPSIS
 
-	use HTTP::Server::Encrypt qw(http_server_start);
+  use HTTP::Server::Encrypt qw(http_server_start);
 
-	my %http_conf;
-	$http_conf{'port'} = 80;
-	$http_conf{'username'} = 'username';
-	$http_conf{'passwd'} = 'passwd';
-	$http_conf{'min_spare'} = 2;
-	$http_conf{'max_spare'} = 6;
-	$http_conf{'static_expires_secs'} = 7200;
-	$http_conf{'docroot'} = 'plugins/';
-	$http_conf{'blowfish_key'} = $key;
-	$http_conf{'blowfish_encrypt'} = 'yes';
-	$http_conf{'blowfish_decrypt'} = 'yes';
-	$http_conf{'ip_allow'} = \%ip_allow;
-	$http_conf{'ip_deny'} = \%ip_deny;
-    $http_conf{'log_dir'} = '/var/log/httpd_encrype/';
+  my %http_conf;
+  $http_conf{'port'} = 80;
+  $http_conf{'username'} = 'username';
+  $http_conf{'passwd'} = 'passwd';
+  $http_conf{'min_spare'} = 2;
+  $http_conf{'max_spare'} = 6;
+  $http_conf{'static_expires_secs'} = 7200;
+  $http_conf{'docroot'} = 'plugins/';
+  $http_conf{'blowfish_key'} = $key;
+  $http_conf{'blowfish_encrypt'} = 'yes';
+  $http_conf{'blowfish_decrypt'} = 'yes';
+  $http_conf{'ip_allow'} = \%ip_allow;
+  $http_conf{'ip_deny'} = \%ip_deny;
+  $http_conf{'log_dir'} = '/var/log/httpd_encrype/';
 
-	http_server_start(\%http_conf);
+  http_server_start(\%http_conf);
 
 
 =head1 DESCRIPTION
