@@ -10,3 +10,6 @@ Revision history for Perl extension HTTP::Server::Encrypt.
     - Remove the dependence of the 'Test::HTTP::Response' module
 0.04  Wed Feb 16 12:39:54 2012
     - BUG fix
+0.05  Thu Feb 23 18:15:05 2012
+    - try to support Win32 and Solaris
+    - Defeat vms file read security vulnerabilities

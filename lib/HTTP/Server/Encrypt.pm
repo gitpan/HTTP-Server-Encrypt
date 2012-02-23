@@ -19,7 +19,7 @@ require Exporter;
 @ISA = qw(Exporter);
 @EXPORT_OK = qw(http_server_start);
 
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 
 sub http_server_start
 {
@@ -94,7 +94,7 @@ sub do_child_http
     }
 
     ($method, $request_uri, $protocol) = $chunk =~ m/^(\w+)\s+(\S+)(?:\s+(\S+))?\r?$/;
-    if ($method !~ /^(?:GET|POST)$/)
+    if ($method !~ /^(?:GET|POST)$/ or $request_uri =~ /\.\./)
     {
         $status = 405;
         goto HTTP_RESP;
@@ -211,7 +211,7 @@ sub do_child_http
             {
                 open my $fh,"<",$script_file or die "couldn`t open file";
                 binmode $fh;
-                if(!$blowfish_encrypt)
+                if(!$blowfish_encrypt and $^O eq 'linux')
                 {
                     syswrite $sock, "HTTP/1.0 $status " . status_message($status) . "\015\012";
                     syswrite $sock, "Cache-Control: max-age=$static_expires_secs\015\012";
@@ -473,11 +473,6 @@ The Module has about more the half of request/sec performance compared
 to apache 2.2.I got 3000 req/sec on Xeon 5520/8G which httpd got 6000. 
 Your can trade off between req/sec and sec/req yourself using the 
 config I<min_spare> and I<max_spare>. 
-
-
-=head1 MSWin32 Support
-
-This module have no plan to support MSWin32.
 
 
 =head1 ABOUT PON
