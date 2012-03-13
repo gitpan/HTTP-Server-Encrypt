@@ -14,7 +14,7 @@ require Exporter;
 @ISA = qw(Exporter);
 @EXPORT_OK = qw(server_perfork_dynamic check_pid become_daemon become_netserver get_msg send_msg peer_info net_filter);
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 =head1 NAME
 
@@ -22,17 +22,16 @@ Daemon - Start an Application as a Daemon
 
 =head1 SYNOPSIS
 
-use HTTP::Server::Daemon qw(check_pid become_daemon);
+    use HTTP::Server::Daemon qw(check_pid become_daemon);
 
-my $child_num = 0;
-my $quit = 1;
-become_daemon(__FILE__);
-my $pidfile = check_pid(__FILE__);
-$SIG{CHLD} = sub { while(waitpid(-1,WNOHANG)>0){ $child_num--; } };
-$SIG{TERM} = $SIG{INT} = sub { unlink $pidfile; $quit--; };
-while ($quit){
-    #do your things;
-}
+    my $child_num = 0;
+    my $quit = 1;
+    my $pidfile = become_daemon(__FILE__);
+    $SIG{CHLD} = sub { while(waitpid(-1,WNOHANG)>0){ $child_num--; } };
+    $SIG{TERM} = $SIG{INT} = sub { unlink $pidfile; $quit--; };
+    while ($quit){
+        #do your things;
+    }
 
 =head1 DESCRIPTION
 

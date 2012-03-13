@@ -27,4 +27,4 @@ requires:
   Log::Lite: 0.03
   MIME::Base64: 0
   Sys::Sendfile: 0
-version: 0.05
+version: 0.06

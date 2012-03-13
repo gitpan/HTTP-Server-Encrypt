@@ -19,7 +19,7 @@ require Exporter;
 @ISA = qw(Exporter);
 @EXPORT_OK = qw(http_server_start);
 
-our $VERSION = '0.05';
+our $VERSION = '0.06';
 
 sub http_server_start
 {
@@ -189,7 +189,7 @@ sub do_child_http
     }
 
     my $boolen_sendfile;
-    my $body;
+    my $body = '';
     if (-e $script_file and -r $script_file and -s $script_file)
     {
         eval
@@ -293,7 +293,7 @@ sub http_response
     $header{'Server'} = 'Colonel/0.9 PERL/5.8' unless defined $header{'Server'};
     $header{'Content-Type'} = 'text/html' unless defined $header{'Content-Type'} ;
     use bytes;
-    $header{'Content-Length'} = length($body) unless defined $header{'Content-Length'} ;
+    $header{'Content-Length'} = length($body) if defined $body and $body and !defined $header{'Content-Length'} ;
     $header{'WWW-Authenticate'} = 'Basic realm="Colonel Authentication System"' if $status == 401 ;
 
     my $head = "HTTP/1.0 $status $status_msg\015\012";
@@ -302,7 +302,8 @@ sub http_response
         $head .= "$_: " . $header{$_} . "\015\012";
     }
 
-    my $output = $head . "\015\012" . $body;
+    my $output = $head . "\015\012";
+    $output .= $body if defined $body and $body;
     print $sock $output;
     return length($output);
 }
