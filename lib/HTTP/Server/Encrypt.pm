@@ -19,7 +19,7 @@ require Exporter;
 @ISA = qw(Exporter);
 @EXPORT_OK = qw(http_server_start);
 
-our $VERSION = '0.06';
+our $VERSION = '0.07';
 
 sub http_server_start
 {
@@ -52,7 +52,10 @@ sub http_server_start
 
     if ($username or $passwd)
     {
-        our $right_auth = encode_base64($username . ":" . $passwd);
+        our $right_auth = $username if $username;
+        $right_auth.= ":";
+        $right_auth.= $passwd if $passwd;
+        $right_auth = encode_base64($right_auth);
         chomp $right_auth;
     }
 
@@ -109,7 +112,26 @@ sub do_child_http
         foreach (@query)
         {
             my ($k, $v) = $_ =~ /(.*)\=(.*)/;
-            $_GET{$k} = $v;
+            next unless defined $k and $k and defined $v and $v;
+            if (!$_GET{$k})
+            {
+                $_GET{$k} = $v;
+            }
+            elsif (!ref($_GET{$k}))
+            {
+                my $tmp_value = $_GET{$k};
+                undef $_GET{$k};
+                push @{$_GET{$k}} , $tmp_value;
+                push @{$_GET{$k}} , $v;
+            }
+            elsif (ref($_GET{$k}) eq 'ARRAY')
+            {
+                push @{$_GET{$k}} , $v;
+            }
+            else
+            {
+                next;
+            }
         }
     }
     local %_HEAD = http_get_header($sock);
