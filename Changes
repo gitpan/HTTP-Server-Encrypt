@@ -17,3 +17,6 @@ Revision history for Perl extension HTTP::Server::Encrypt.
     - BUG fix
 0.07  Tue May  8 11:25:07 2012
     - fix duplicate key in POST data
+0.08  Fri Jun  1 10:03:44 2012
+    - CGI support
+    - fix html-checkbox bug

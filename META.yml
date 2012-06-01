@@ -1,7 +1,7 @@
 --- #YAML:1.0
 name:               HTTP-Server-Encrypt
-version:            0.07
-abstract:           HTTP server with encrypt BODY section
+version:            0.08
+abstract:           HTTP server can encrypt BODY section
 author:
     - ChenGang <yikuyiku.com@gmail.com>
 license:            unknown

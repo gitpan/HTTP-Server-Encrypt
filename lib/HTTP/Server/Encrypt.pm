@@ -13,19 +13,20 @@ use Log::Lite qw(log logpath);
 use Crypt::CBC;
 use Digest::MD5 qw(md5_hex);
 use Data::Dump qw(ddx);
-use vars qw(@ISA @EXPORT_OK $right_auth $username $script_base_dir $peer_port $peer_ip $script %data $body %header $file %_GET %_POST %_HEAD %res $send_bytes $static_expires_secs $blowfish $blowfish_key $blowfish_encrypt $blowfish_decrypt $_POST %ip_allow %ip_deny $log_dir);
+use Sys::Hostname;
+use vars qw(@ISA @EXPORT_OK $right_auth $username $script_base_dir $peer_port $peer_ip $script %data $body %header $file %_GET %_POST %_HEAD %res $send_bytes $static_expires_secs $blowfish $blowfish_key $blowfish_encrypt $blowfish_decrypt $_POST %ip_allow %ip_deny $log_dir $port $colonel_version);
 
 require Exporter;
 @ISA = qw(Exporter);
 @EXPORT_OK = qw(http_server_start);
 
-our $VERSION = '0.07';
+our $VERSION = '0.08';
 
 sub http_server_start
 {
     my $ref_http_conf = shift;
     my %http_conf = %$ref_http_conf;
-    my $port = $http_conf{'port'} || 80;
+    our $port = $http_conf{'port'} || 80;
     my $protocol = $http_conf{'protocol'} || 'http';
     my $min_spare = $http_conf{'min_spare'} || 10;
     my $max_spare = $http_conf{'max_spare'} || 20;
@@ -41,6 +42,7 @@ sub http_server_start
     our $log_dir = $http_conf{'log_dir'} if $http_conf{'log_dir'};
     $log_dir = '' if defined $log_dir and $log_dir eq 'no';
     logpath($log_dir) if defined $log_dir and $log_dir;
+    our $colonel_version = 'Colonel/0.9';
 
     if ($blowfish_key)
     {
@@ -88,6 +90,18 @@ sub do_child_http
     my $request_uri;
     my $protocol;
     my %header;
+    local %ENV;
+    $ENV{'AUTH_TYPE'} = "Basic" if $username;
+    $ENV{'GATEWAY_INTERFACE'} = "CGI/1.1";
+    $ENV{'HTTP'} = '';
+    $ENV{'REMOTE_ADDR'} = $peer_ip;
+    $ENV{'REMOTE_HOST'} = $peer_ip;
+    $ENV{'REMOTE_IDENT'} = "";
+    $ENV{'REMOTE_USER'} = $username if $username;
+    $ENV{'SERVER_NAME'} = hostname;
+    $ENV{'SERVER_PORT'} = $port;
+    $ENV{'SERVER_PROTOCOL'} = "HTTP/1.0";
+    $ENV{'SERVER_SOFTWARE'} = $colonel_version;
 
     my $chunk = http_readline($sock);
     if (!$chunk or length($chunk) > 16*1024)
@@ -102,8 +116,13 @@ sub do_child_http
         $status = 405;
         goto HTTP_RESP;
     }
+    $ENV{'REQUEST_METHOD'} = $method;
 
     my ($script, $query_string ) = $request_uri =~ /([^?]*)(?:\?(.*))?/s;
+    $ENV{'PATH_INFO'} = $script;
+    $ENV{'PATH_TRANSLATED'} = $script;
+    $ENV{'QUERY_STRING'} = $query_string;
+    $ENV{'SCRIPT_NAME'} = $script;
 
     local %_GET;
     if($query_string)
@@ -135,6 +154,8 @@ sub do_child_http
         }
     }
     local %_HEAD = http_get_header($sock);
+    $ENV{'CONTENT_LENGTH'} = $_HEAD{'Content-Length'};
+    $ENV{'CONTENT_TYPE'} = $_HEAD{'Content-Type'};
 
     if( -d "$script_base_dir$script" )
     {
@@ -206,7 +227,26 @@ sub do_child_http
         foreach (@post_query)
         {
             my ($k_post, $v_post) = $_ =~ /(.*)\=(.*)/;
-            $_POST{$k_post} = $v_post if $k_post;
+            next unless defined $k_post and $k_post and defined $v_post and $v_post;
+            if (!$_POST{$k_post})
+            {
+                $_POST{$k_post} = $v_post;
+            }
+            elsif (!ref($_POST{$k_post}))
+            {
+                my $tmp_value = $_POST{$k_post};
+                undef $_POST{$k_post};
+                push @{$_POST{$k_post}} , $tmp_value;
+                push @{$_POST{$k_post}} , $v_post;
+            }
+            elsif (ref($_POST{$k_post}) eq 'ARRAY')
+            {
+                push @{$_POST{$k_post}} , $v_post;
+            }
+            else
+            {
+                next;
+            }
         }
     }
 
@@ -312,7 +352,7 @@ sub http_response
         $body = "<title>$status $status_msg</title><h1>Colonel ERROR: $status $status_msg</h1><br/>";
     }
     $header{'Date'} = time2str(time) unless defined $header{'Date'};
-    $header{'Server'} = 'Colonel/0.9 PERL/5.8' unless defined $header{'Server'};
+    $header{'Server'} = $colonel_version unless defined $header{'Server'};
     $header{'Content-Type'} = 'text/html' unless defined $header{'Content-Type'} ;
     use bytes;
     $header{'Content-Length'} = length($body) if defined $body and $body and !defined $header{'Content-Length'} ;
@@ -335,7 +375,7 @@ __END__
 
 =head1 NAME
 
-HTTP::Server::Encrypt - HTTP server with encrypt BODY section
+HTTP::Server::Encrypt - HTTP server can encrypt BODY section
 
 =head1 SYNOPSIS
 
@@ -343,43 +383,34 @@ HTTP::Server::Encrypt - HTTP server with encrypt BODY section
 
   my %http_conf;
   $http_conf{'port'} = 80;
-  $http_conf{'username'} = 'username';
-  $http_conf{'passwd'} = 'passwd';
-  $http_conf{'min_spare'} = 2;
-  $http_conf{'max_spare'} = 6;
-  $http_conf{'static_expires_secs'} = 7200;
-  $http_conf{'docroot'} = 'plugins/';
-  $http_conf{'blowfish_key'} = $key;
+  $http_conf{'docroot'} = "/var/www/htdoc/";
+  $http_conf{'blowfish_key'} = "somekey";
   $http_conf{'blowfish_encrypt'} = 'yes';
   $http_conf{'blowfish_decrypt'} = 'yes';
-  $http_conf{'ip_allow'} = \%ip_allow;
-  $http_conf{'ip_deny'} = \%ip_deny;
-  $http_conf{'log_dir'} = '/var/log/httpd_encrype/';
-
   http_server_start(\%http_conf);
 
 
 =head1 DESCRIPTION
 
-A pure Perl WebServer with additional features below.
+A pure Perl WebServer with features below.
 
 =over 4
 
 =item *
 
-Counld encrypt response BODY section or decrypt resquest BODY section with BlowFish CBC.
+Be able to encrypt response BODY section and decrypt resquest BODY section with BlowFish CBC.
 
 =item *
 
-Support HTTP Basic Authentication.
+HTTP Basic Authentication support.
 
 =item *
 
-Minimum and maximum number of prefork processes is configurable.
+Prefork processes module.
 
 =item *
 
-Cache static request`s response in memory. 
+Use I<sendfile> for station file requests.
 
 =item *
 
@@ -391,37 +422,19 @@ Built-in IP filter.
 
 =item *
 
-Support protocol I<PON> I<(Perl Object Notation)>.
+CGI support.
 
 =back
 
 
-=head1 USAGE
+=head1 EASY SETUP
 
 Usage of I<HTTP::Server::Encrypt> is very simple.
 
 =head2 http_server_start(%params)
 
-To set up a new HTTP Server, call the I<http_server_start> method.
-You Get All Done. It will run as a daemon.
-
-If your want do things after I<http_server_start> method, you may use this:
-
-    my $parent = fork();
-    unless($parent)
-    {
-        http_server_start(\%http_conf);
-        exit 1;
-    }
-
-    my $pidfile = __FILE__ . ".pid";
-    for(1..9)
-    {
-        last if -s $pidfile;
-        sleep 1;
-    }
-
-    ... #server already up. do your things ...
+To set up a new HTTP Server, just call the I<http_server_start> method.
+It will run as a daemon.
 
 I<http_server_start> accepts the following named parameters in I<%params>:
 
@@ -429,8 +442,7 @@ I<http_server_start> accepts the following named parameters in I<%params>:
 
 =item * port
 
-The port of the daemon to which you wish to listen on.
-Defaults to 80.
+Default 80.
 
 =item * protocol
 
@@ -447,13 +459,14 @@ Maximum number of processes can be forked.
 
 =item * docroot
 
-This directive sets the directory from which the server will serve files.
+Set the root directory.
+For example:
 Request I<GET /script.pl> will be responsed by 
 I</var/www/html/script.pl> if you this set to I</var/www/html/>.
 
 =item * cache_expires_secs
 
-Set the HTTP "Cache-Control: max-age" value for static content.
+Set the HTTP "Cache-Control: max-age" value for static requesets.
 
 =item * username
 
@@ -461,7 +474,8 @@ Set the HTTP Basic Authentication username.
 
 =item * passwd
 
-Set the HTTP Basic Authentication password. if username and password are not be set, HTTP Basic Authentication disabled.
+Set the HTTP Basic Authentication password. 
+If username and password are not be set, HTTP Basic Authentication disabled.
 
 =item * blowfish_key
 
@@ -469,40 +483,121 @@ Set the BODY encrpyt key. if not set, BODY encrypt disabled.
 
 =item * blowfish_encrypt
 
-Set enable encrpy the send response BODY section.
+Enable encrypt the response BODY.
 
 =item * blowfish_decrypt
 
-Set enable encrpy the recieved request BODY section.
+Enable encrypt the request BODY.
 
 =item * ip_allow
 
-Set ip list allow acccess.
+Allow ip list.
 
 =item * ip_deny
 
-Set ip list deny access.
+Deny ip list.
 
 =item * log_dir
 
-Set log directory. Disable log if value eq I<no>.
+Set access log directory. 
+Disable log if set to I<no>.
 
 =back
 
 
-=head1 PERFORMANCE
+=head1 HOW TO WRITE SCRIPTS
 
-The Module has about more the half of request/sec performance compared 
-to apache 2.2.I got 3000 req/sec on Xeon 5520/8G which httpd got 6000. 
-Your can trade off between req/sec and sec/req yourself using the 
-config I<min_spare> and I<max_spare>. 
+Only PERL script support.
+
+Just scripts in I<docroot>.
+
+For example:
+
+If you I<docroot> set to I</var/www/html/>.
+
+Request I<GET /script.pl> will be responsed by I</var/www/html/script.pl>.
+
+There is some vars can be used in the script.
+
+=over 4
+
+=item * I<$peer_ip>
+
+The IP address from which the user is viewing the current page.
+
+=item * I<$peer_port>
+
+The TCP port from which the user is viewing the current page.
+
+=item * I<%_GET>
+
+HTTP GET variables.
+
+An associative array of variables passed to the current script via the URL parameters.
+
+=item * I<%_POST>
+
+HTTP POST variables.
+
+An associative array of variables passed to the current script via the HTTP POST method.
+
+=item * I<$_POST>
+
+Raw POST data.
+
+=item * I<%_HEAD>
+
+HTTP request headers.
+
+=item * I<%_ENV>
+
+Execution environment information.
+
+An associative array of variables passed to the current script via the environment method.
+
+Default 80.
+
+Above can be used direct.
+
+=back
 
 
-=head1 ABOUT PON
+=head1 CGI SUPPORT
 
-That is a very simple and friendly Network Protocol for PERL. I use it 
-on my distributed system communication.Because it works just like JSON, 
-I called it "PON".
+If you write scripts in Python or C or something not PERL,
+
+You may want use L<CGI> standard, then you can write
+	
+	use HTTP::Server::Encrypt::CGI;
+
+Instead of 
+
+	use HTTP::Server::Encrypt;
+
+Then you just put you CGI applications in I<docroot>.
+
+More information in L<HTTP::Server::Encrypt::CGI>.
+
+
+=head1 TIPS
+
+If your want do things after I<http_server_start> method, you may want this:
+
+    my $parent = fork();
+    unless($parent)
+    {
+        http_server_start(\%http_conf);
+        exit 1;
+    }
+
+    my $pidfile = __FILE__ . ".pid";
+    for(1..9)
+    {
+        last if -s $pidfile;
+        sleep 1;
+    }
+
+    ... #server already up. do your things ...
 
 
 =head1 AUTHOR
@@ -521,7 +616,6 @@ modify it under the same terms as Perl itself.
 
 =head1 SEE ALSO
 
-L<HTTP::Daemon>, L<HTTP::Server::Simple>
+L<HTTP::Daemon>, L<HTTP::Server::Simple>, L<HTTP::Server::Encrypt::CGI>
 
 =cut
-

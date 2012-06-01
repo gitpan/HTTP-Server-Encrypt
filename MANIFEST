@@ -7,5 +7,6 @@ t/01http.t
 t/htdocs/index.html
 lib/HTTP/Server/Encrypt.pm
 lib/HTTP/Server/Daemon.pm
+lib/HTTP/Server/Encrypt/CGI.pm
 META.yml                                 Module YAML meta-data (added by MakeMaker)
 META.json                                Module JSON meta-data (added by MakeMaker)
