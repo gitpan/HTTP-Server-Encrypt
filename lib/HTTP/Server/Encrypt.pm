@@ -21,7 +21,7 @@ require Exporter;
 @ISA = qw(Exporter);
 @EXPORT_OK = qw(http_server_start);
 
-our $VERSION = '0.09';
+our $VERSION = '0.10';
 
 sub http_server_start
 {
@@ -274,16 +274,15 @@ sub do_child_http
             {
                 open my $fh,"<",$script_file or die "couldn`t open file";
                 binmode $fh;
+
+				my($ct,$ce) = guess_media_type($script_file);
                 if(!$blowfish_encrypt and $^O eq 'linux')
                 {
-                    syswrite $sock, "HTTP/1.0 $status " . status_message($status) . "\015\012";
-
-					my($ct,$ce) = guess_media_type($script_file);
-					syswrite $sock, "Content-Type: $ct\015\012";
+					syswrite $sock, "HTTP/1.0 $status " . status_message($status) . "\015\012";
+					syswrite $sock, "Content-Type: $ct\015\012" if $ct;
 					syswrite $sock, "Content-Encoding: $ce\015\012" if $ce;
-
-                    syswrite $sock, "Cache-Control: max-age=$static_expires_secs\015\012";
-                    syswrite $sock, "\015\012";
+					syswrite $sock, "Cache-Control: max-age=$static_expires_secs\015\012";
+					syswrite $sock, "\015\012";
                     $send_bytes = sendfile($sock, $fh);
                     $boolen_sendfile = 1;
                     goto HTTP_RESP;
@@ -291,6 +290,8 @@ sub do_child_http
                 else
                 {
                     $body = do {local $/; <$fh>};
+					$header{'Content-Type'} = $ct if $ct;
+					$header{'Content-Encoding'} = $ce if $ce;
                 }
                 close $fh;
             }
