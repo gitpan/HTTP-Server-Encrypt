@@ -14,6 +14,7 @@ WriteMakefile(
                             'Digest::MD5' => 0,
                             'MIME::Base64' => 0,
                             'LWP::UserAgent' => 0,
+                            'LWP::MediaTypes' => 0,
                         }, 
     ($] >= 5.005 ?     
       (ABSTRACT_FROM  => 'lib/HTTP/Server/Encrypt.pm', 

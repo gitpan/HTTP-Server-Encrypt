@@ -20,3 +20,5 @@ Revision history for Perl extension HTTP::Server::Encrypt.
 0.08  Fri Jun  1 10:03:44 2012
     - CGI support
     - fix html-checkbox bug
+0.09  Sat May 18 07:01:08 2013
+    - add Content-Type and Content-Encoding in response header

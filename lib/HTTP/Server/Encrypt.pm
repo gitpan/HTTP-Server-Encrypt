@@ -14,13 +14,14 @@ use Crypt::CBC;
 use Digest::MD5 qw(md5_hex);
 use Data::Dump qw(ddx);
 use Sys::Hostname;
+use LWP::MediaTypes qw(guess_media_type);
 use vars qw(@ISA @EXPORT_OK $right_auth $username $script_base_dir $peer_port $peer_ip $script %data $body %header $file %_GET %_POST %_HEAD %res $send_bytes $static_expires_secs $blowfish $blowfish_key $blowfish_encrypt $blowfish_decrypt $_POST %ip_allow %ip_deny $log_dir $port $colonel_version);
 
 require Exporter;
 @ISA = qw(Exporter);
 @EXPORT_OK = qw(http_server_start);
 
-our $VERSION = '0.08';
+our $VERSION = '0.09';
 
 sub http_server_start
 {
@@ -276,6 +277,11 @@ sub do_child_http
                 if(!$blowfish_encrypt and $^O eq 'linux')
                 {
                     syswrite $sock, "HTTP/1.0 $status " . status_message($status) . "\015\012";
+
+					my($ct,$ce) = guess_media_type($script_file);
+					syswrite $sock, "Content-Type: $ct\015\012";
+					syswrite $sock, "Content-Encoding: $ce\015\012" if $ce;
+
                     syswrite $sock, "Cache-Control: max-age=$static_expires_secs\015\012";
                     syswrite $sock, "\015\012";
                     $send_bytes = sendfile($sock, $fh);
