@@ -21,7 +21,7 @@ require Exporter;
 @ISA = qw(Exporter);
 @EXPORT_OK = qw(http_server_start);
 
-our $VERSION = '0.10';
+our $VERSION = '0.11';
 
 sub http_server_start
 {
@@ -81,6 +81,7 @@ sub http_server_start
 
 sub do_child_http
 {
+	no warnings 'uninitialized';
     my $sock = shift;
     local ($peer_port, $peer_ip) = peer_info($sock);
     if (%ip_allow) {return unless $ip_allow{$peer_ip};}

@@ -24,3 +24,5 @@ Revision history for Perl extension HTTP::Server::Encrypt.
     - add Content-Type and Content-Encoding in response header
 0.10  Sat May 18 07:31:29 2013
     - fix a bug about Content-Type header on no linux system
+0.11  Sat May 18 10:54:26 2013
+	- fix 'Use of uninitialized' warning line 158
