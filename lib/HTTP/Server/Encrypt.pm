@@ -21,7 +21,7 @@ require Exporter;
 @ISA = qw(Exporter);
 @EXPORT_OK = qw(http_server_start);
 
-our $VERSION = '0.11';
+our $VERSION = '0.12';
 
 sub http_server_start
 {

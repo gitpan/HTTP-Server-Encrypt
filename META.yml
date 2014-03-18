@@ -1,13 +1,13 @@
 ---
 abstract: 'HTTP server can encrypt BODY section'
 author:
-  - 'ChenGang <yikuyiku.com@gmail.com>'
+  - 'Chen Gang <yikuyiku.com@gmail.com>'
 build_requires:
   ExtUtils::MakeMaker: 0
 configure_requires:
   ExtUtils::MakeMaker: 0
 dynamic_config: 1
-generated_by: 'ExtUtils::MakeMaker version 6.66, CPAN::Meta::Converter version 2.120921'
+generated_by: 'ExtUtils::MakeMaker version 6.9, CPAN::Meta::Converter version 2.120921'
 license: unknown
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -28,4 +28,4 @@ requires:
   Log::Lite: 0.03
   MIME::Base64: 0
   Sys::Sendfile: 0
-version: 0.11
+version: 0.12

@@ -14,7 +14,7 @@ require Exporter;
 @ISA = qw(Exporter);
 @EXPORT_OK = qw(server_perfork_dynamic check_pid become_daemon become_netserver get_msg send_msg peer_info net_filter);
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
 =head1 NAME
 
@@ -62,7 +62,7 @@ sub server_perfork_dynamic
     my $server = become_netserver($port);
 
     my $pipe_read;
-    my $pipr_write;
+    my $pipe_write;
     pipe($pipe_read, $pipe_write);
     my $pipe_status = IO::Select->new($pipe_read);
 

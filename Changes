@@ -26,3 +26,5 @@ Revision history for Perl extension HTTP::Server::Encrypt.
     - fix a bug about Content-Type header on no linux system
 0.11  Sat May 18 10:54:26 2013
 	- fix 'Use of uninitialized' warning line 158
+0.12  Tue Mar 18 13:47:05 2014
+	- fix crash on load heavy

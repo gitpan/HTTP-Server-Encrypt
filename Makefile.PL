@@ -18,5 +18,5 @@ WriteMakefile(
                         }, 
     ($] >= 5.005 ?     
       (ABSTRACT_FROM  => 'lib/HTTP/Server/Encrypt.pm', 
-       AUTHOR         => 'ChenGang <yikuyiku.com@gmail.com>') : ()),
+       AUTHOR         => 'Chen Gang <yikuyiku.com@gmail.com>') : ()),
 );
